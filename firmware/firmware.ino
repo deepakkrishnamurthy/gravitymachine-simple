@@ -8,8 +8,8 @@
 static const float TIMER_PERIOD_us = 50000; // in us
 static const bool USE_SERIAL_MONITOR = false; // for debug
 
-static const int DATA_BYTES = 6;  // No:of bytes per sensor read
-static const int MSG_LENGTH = 25*DATA_BYTES;
+static const int RECORD_LENGTH_BYTE = 6;  // No:of bytes per sensor read
+static const int MSG_LENGTH = 25*RECORD_LENGTH_BYTE;
 
 static const int CMD_LENGTH = 4;
 byte buffer_rx[500];
@@ -107,7 +107,7 @@ void loop()
   if (flag_read_sensor)
   {
     // Read the sensor
-    
+
     // ch1 = analogRead(A0);
     // ch2 = analogRead(A1);
     // ch3 = analogRead(A2);

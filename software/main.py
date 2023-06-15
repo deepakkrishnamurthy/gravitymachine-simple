@@ -20,8 +20,8 @@ if __name__ == "__main__":
 
     app = QApplication([])
     if args.simulation:
-        win = gui.VentDevGUI(is_simulation=True)
+        win = gui.GUI(is_simulation=True)
     else:
-        win = gui.VentDevGUI()
+        win = gui.GUI()
     win.show()
     app.exec_() #sys.exit(app.exec_())

@@ -8,7 +8,7 @@ from qtpy.QtCore import *
 from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 
-import control.utils as utils
+import control.utils.byte_operations as utils
 from control._def import *
 
 from queue import Queue
@@ -17,6 +17,7 @@ import numpy as np
 import pyqtgraph as pg
 from datetime import datetime
 from pathlib import Path
+import control.utils.CSV_Tool as CSV_Tool
 
 class Waveforms(QObject):
 
@@ -30,7 +31,10 @@ class Waveforms(QObject):
     def __init__(self,microcontroller):
         QObject.__init__(self)
         self.file = open(str(Path.home()) + "/Downloads/" + datetime.now().strftime('%Y-%m-%d %H-%M-%-S.%f') + ".csv", "w+")
-        # self.file.write('Time (s),Paw (cmH2O),Flow (l/min),Volume (ml),Vt (ml),Ti (s),RR (/min),PEEP (cmH2O)\n')
+
+        self.csv_register = CSV_Tool.CSV_Register(header = [SAVE_DATA])
+
+
         self.microcontroller = microcontroller
 
         self.time = 0

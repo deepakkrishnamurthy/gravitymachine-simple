@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--simulation", help="Run the GUI with simulated image streams.", action = 'store_true')
 args = parser.parse_args()
 
-class VentDevGUI(QMainWindow):
+class GUI(QMainWindow):
 
 	# variables
 	fps_software_trigger = 100
