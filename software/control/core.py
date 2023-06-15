@@ -32,7 +32,7 @@ class Waveforms(QObject):
         QObject.__init__(self)
         self.file = open(str(Path.home()) + "/Downloads/" + datetime.now().strftime('%Y-%m-%d %H-%M-%-S.%f') + ".csv", "w+")
 
-        self.csv_register = CSV_Tool.CSV_Register(header = [SAVE_DATA])
+        # self.csv_register = CSV_Tool.CSV_Register(header = [SAVE_DATA])
 
 
         self.microcontroller = microcontroller
@@ -44,17 +44,17 @@ class Waveforms(QObject):
         for i in range(NUMBER_OF_CHANNELS):
             self.ch[str(i)] = 0
 
-        self.temperature = {}
+        self.pressure = {}
         for i in range(NUMBER_OF_CHANNELS):
-            self.temperature[str(i)] = 0
+            self.pressure[str(i)] = 0
 
         self.ch_array = {}
         for i in range(NUMBER_OF_CHANNELS):
             self.ch_array[str(i)] = np.array([])
 
-        self.temperature_array = {}
+        self.pressure_array = {}
         for i in range(NUMBER_OF_CHANNELS):
-            self.temperature_array[str(i)] = np.array([])
+            self.pressure_array[str(i)] = np.array([])
 
         self.timer_update_waveform = QTimer()
         self.timer_update_waveform.setInterval(MCU.DATA_INTERVAL_ms/2)
@@ -81,6 +81,7 @@ class Waveforms(QObject):
         else:
             self.experimentID = experimentID
             self.file = open(str(Path.home()) + "/Downloads/" + self.experimentID + '_' + datetime.now().strftime('%Y-%m-%d %H-%M-%-S.%f') + ".csv", "w+")
+            self.file.write(str(SAVE_DATA) +'\n')
 
     def update_waveforms(self):
 
@@ -94,9 +95,9 @@ class Waveforms(QObject):
             ch_chunck = {}
             for k in range(NUMBER_OF_CHANNELS):
                 ch_chunck[str(k)] = np.array([])
-            temperature_chunck = {}
+            pressure_chunck = {}
             for k in range(NUMBER_OF_CHANNELS):
-                temperature_chunck[str(k)] = np.array([])
+                pressure_chunck[str(k)] = np.array([])
 
             for i in range(MCU.TIMEPOINT_PER_UPDATE):
                 # time
@@ -111,18 +112,26 @@ class Waveforms(QObject):
                     self.ch[str(k)] = utils.unsigned_to_unsigned(readout[i*MCU.RECORD_LENGTH_BYTE+4+k*2:i*MCU.RECORD_LENGTH_BYTE+6+k*2],2)
                     ch_chunck[str(k)] = np.append(ch_chunck[str(k)],self.ch[str(k)])
 
-                if IS_TEMPERATURE_MEASUREMENT:
-                    # calculate temperature
+
+                if IS_PRESSURE_MEASUREMENT:
+                    # Convert the pressure to real units
                     for k in range(NUMBER_OF_CHANNELS-1):
-                        self.temperature[str(k)] = utils.DACs_to_temp(self.ch[str(NUMBER_OF_CHANNELS-1)],self.ch[str(k)],100000)
-                        temperature_chunck[str(k)] = np.append(temperature_chunck[str(k)],self.temperature[str(k)])
+
+
+                        self.pressure[str(k)] = PressureSensorDef.raw_reading_to_pressure (self.ch[str(k)])
+
+                        print(k, '\t', self.ch[str(k)])
+
+                        pressure_chunck[str(k)] = np.append(pressure_chunck[str(k)],self.pressure[str(k)])
+
+            
 
                 # line to write
-                record_from_MCU = str(self.time_ticks) + '\t'
+                record_from_MCU = str(self.time_ticks) + ','
                 for k in range(NUMBER_OF_CHANNELS):
-                    record_from_MCU = record_from_MCU + str(self.ch[str(k)]) + '\t'
+                    record_from_MCU = record_from_MCU + str(self.ch[str(k)]) + ','
                 for k in range(NUMBER_OF_CHANNELS-1):
-                    record_from_MCU = record_from_MCU + str(self.temperature[str(k)]) + '\t'
+                    record_from_MCU = record_from_MCU + str(self.pressure[str(k)]) + ','
                 record_settings = (str(self.time_now))
                
                 # saved variables
@@ -136,22 +145,25 @@ class Waveforms(QObject):
             for k in range(NUMBER_OF_CHANNELS):
                 self.ch_array[str(k)] = np.append(self.ch_array[str(k)],ch_chunck[str(k)])
             for k in range(NUMBER_OF_CHANNELS-1):
-                self.temperature_array[str(k)] = np.append(self.temperature_array[str(k)],temperature_chunck[str(k)])
+                self.pressure_array[str(k)] = np.append(self.pressure_array[str(k)],pressure_chunck[str(k)])
 
             # emit signals with reduced display refresh rate
             self.counter_display = self.counter_display + 1
             if self.counter_display>=1:
                 self.counter_display = 0
                 # emit plots
-                if IS_TEMPERATURE_MEASUREMENT:
-                    plot_arrays = self.temperature_array[str(0)]
+                if IS_PRESSURE_MEASUREMENT:
+                    plot_arrays = self.pressure_array[str(0)]
                     for k in range(1,NUMBER_OF_CHANNELS_DISPLAY):
-                        plot_arrays = np.vstack((plot_arrays,self.temperature_array[str(k)]))
+                        
+                        print(len(self.pressure_array[str(k)]))
+
+                        plot_arrays = np.vstack((plot_arrays,self.pressure_array[str(k)]))
                     self.signal_plots.emit(self.time_array,plot_arrays)
                     # emit readings
                     readings_to_display = np.array([])
                     for k in range(NUMBER_OF_CHANNELS_DISPLAY):
-                        readings_to_display = np.append(readings_to_display,self.temperature[str(k)])
+                        readings_to_display = np.append(readings_to_display,self.pressure[str(k)])
                     self.signal_readings.emit(readings_to_display)
                 else:
                     plot_arrays = self.ch_array[str(0)]

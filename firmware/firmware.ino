@@ -8,7 +8,7 @@
 static const float TIMER_PERIOD_us = 50000; // in us
 static const bool USE_SERIAL_MONITOR = false; // for debug
 
-static const int RECORD_LENGTH_BYTE = 6;  // No:of bytes per sensor read
+static const int RECORD_LENGTH_BYTE = 4+2+2;  // No:of bytes per sensor read
 static const int MSG_LENGTH = 25*RECORD_LENGTH_BYTE;
 
 static const int CMD_LENGTH = 4;
@@ -49,7 +49,7 @@ IntervalTimer myTimer;
 uint8_t cmd[1];
 
 uint16_t ch1;
-// uint16_t ch2;
+uint16_t ch2;
 // uint16_t ch3;
 // uint16_t ch4;
 // uint16_t ch5;
@@ -142,6 +142,10 @@ void loop()
     buffer_tx[buffer_tx_ptr++] = byte(ps.bridge_data >> 8);
     buffer_tx[buffer_tx_ptr++] = byte(ps.bridge_data % 256);
 
+    // field 3, ch2
+    ch2 = 0;
+    buffer_tx[buffer_tx_ptr++] = byte(ps.bridge_data >> 8);
+    buffer_tx[buffer_tx_ptr++] = byte(ps.bridge_data % 256);
 
     if (buffer_tx_ptr == MSG_LENGTH)
     {

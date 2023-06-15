@@ -37,6 +37,7 @@ SIMULATION = False
 
 NUMBER_OF_CHANNELS = 2
 NUMBER_OF_CHANNELS_DISPLAY = 2
-IS_TEMPERATURE_MEASUREMENT = False
+IS_PRESSURE_MEASUREMENT = False
 
-SAVE_DATA = ['Time (s)', 'Pressure (ch1)', 'Pressure (ch2)']
+
+SAVE_DATA = ['Time (s),Pressure (ch1) {},Pressure (ch2) {}'.format(PressureSensorDef.PRESSURE_UNITS, PressureSensorDef.PRESSURE_UNITS)]
