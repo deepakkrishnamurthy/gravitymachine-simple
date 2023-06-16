@@ -191,7 +191,7 @@ class PlotWidget(pg.GraphicsLayoutWidget):
 		super().__init__(parent)
 		self.plotWidget = self.addPlot(title = '')
 
-		self.maxLen = int(1000*WAVEFORMS.DISPLAY_RANGE_S/MCU.TIMER_PERIOD_ms)
+		self.maxLen = int(1000*WAVEFORMS.DISPLAY_RANGE_S/MCU.DATA_INTERVAL_ms)
 
 		# self.maxLen = 100
 

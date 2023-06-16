@@ -37,7 +37,7 @@ class Waveforms(QObject):
 
         self.microcontroller = microcontroller
 
-        self.maxLen = MCU.TIMEPOINT_PER_UPDATE*WAVEFORMS.DISPLAY_UNDERSAMPLING  # Max length of data we want to store in the Rec buffer
+        self.maxLen = 2*MCU.TIMEPOINT_PER_UPDATE*WAVEFORMS.DISPLAY_UNDERSAMPLING  # Max length of data we want to store in the Rec buffer
 
         # self.maxLen = 200
 
