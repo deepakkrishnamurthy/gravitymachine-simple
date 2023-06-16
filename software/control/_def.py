@@ -1,4 +1,5 @@
 class MCU:
+
     CMD_LENGTH = 4
     N_BYTES_DATA = 2
     TIMER_PERIOD_ms = 5
@@ -28,8 +29,16 @@ class PressureSensorDef:
 
 	def raw_reading_to_pressure(raw):
 
-
 		return 1.0 * (raw - PressureSensorDef.OUTPUT_MIN) * (PressureSensorDef.PRESSURE_MAX - PressureSensorDef.PRESSURE_MIN) / (PressureSensorDef.OUTPUT_MAX - PressureSensorDef.OUTPUT_MIN) + PressureSensorDef.PRESSURE_MIN;
+
+
+class WAVEFORMS:
+
+	DISPLAY_RANGE_S = 10
+	CYCLE_GAP = 10
+	UPDATE_INTERVAL_MS = 100
+
+	DISPLAY_UNDERSAMPLING = 1 # No:of MCU cycles after which we update the displays
 
 
 
@@ -37,7 +46,7 @@ SIMULATION = False
 
 NUMBER_OF_CHANNELS = 2
 NUMBER_OF_CHANNELS_DISPLAY = 2
-IS_PRESSURE_MEASUREMENT = False
+IS_PRESSURE_MEASUREMENT = True
 
 
-SAVE_DATA = ['Time (s),Pressure (ch1) {},Pressure (ch2) {}'.format(PressureSensorDef.PRESSURE_UNITS, PressureSensorDef.PRESSURE_UNITS)]
+SAVE_DATA = 'Time (s)'+','+'Pressure (ch1) {}'.format(PressureSensorDef.PRESSURE_UNITS)+','+'Pressure (ch2) {}'.format(PressureSensorDef.PRESSURE_UNITS)

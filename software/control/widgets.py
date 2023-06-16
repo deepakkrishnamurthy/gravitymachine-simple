@@ -113,6 +113,8 @@ class PlotWidget(pg.GraphicsLayoutWidget):
 	def update_plot(self, time_data, data):
 
 		timestamp = time_data%WAVEFORMS.DISPLAY_RANGE_S
+
+		print(WAVEFORMS.DISPLAY_RANGE_S)
 		
 		# Wraparound condition
 		if len(self.left_X_data) > 0 and timestamp < self.left_X_data[-1]:
@@ -177,12 +179,53 @@ class WaveformDisplay(QFrame):
 
 	def plot(self,time,data):
 		for i in range(NUMBER_OF_CHANNELS_DISPLAY):
-			self.plotWidget[str(i)].plot(time,data[i,:])
+
+			self.plotWidget[str(i)].update_data(time, data[i,:])
+
+			self.plotWidget[str(i)].plot()
+
+			# self.plotWidget[str(i)].plot(time,data[i,:])
 
 class PlotWidget(pg.GraphicsLayoutWidget):
 	def __init__(self, window_title='',parent=None):
 		super().__init__(parent)
 		self.plotWidget = self.addPlot(title = '')
-	def plot(self,x,y):
-		self.plotWidget.plot(x,y,pen=(0,3),clear=True)
+
+		self.maxLen = int(1000*WAVEFORMS.DISPLAY_RANGE_S/MCU.TIMER_PERIOD_ms)
+
+		# self.maxLen = 100
+
+		self.x_data = deque(maxlen=self.maxLen)
+		self.y_data = deque(maxlen=self.maxLen)
+
+
+	def plot(self):
+
+		# pass
+
+		# print('Array shape', np.shape(np.squeeze(np.asarray(self.x_data))))
+
+		x_data = np.squeeze(np.asarray(self.x_data, dtype = float)).flatten()
+		y_data = np.squeeze(np.asarray(self.y_data, dtype = float)).flatten()
+
+		self.plotWidget.plot(x_data, y_data, pen=(0,3),clear=True)
+
+	def initialize_plots(self):
+
+		self.x_data = deque(maxlen=self.maxLen)
+		self.y_data = deque(maxlen=self.maxLen)
+
+
+
+	def update_data(self, x_chunk, y_chunk):
+
+
+		self.x_data.append([x_chunk])
+		self.y_data.append([y_chunk])
+
+
+
+
+
+
 
