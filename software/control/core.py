@@ -39,7 +39,7 @@ class Waveforms(QObject):
 
         self.maxLen = MCU.TIMEPOINT_PER_UPDATE*WAVEFORMS.DISPLAY_UNDERSAMPLING  # Max length of data we want to store in the Rec buffer
 
-        self.maxLen = 200
+        # self.maxLen = 200
 
         self.time = 0
         self.time_array = deque(maxlen=self.maxLen)

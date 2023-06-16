@@ -15,20 +15,20 @@ class Microcontroller():
         self.tx_buffer_length = MCU.CMD_LENGTH
         self.rx_buffer_length = MCU.MSG_LENGTH
 
-        # AUTO-DETECT the Arduino! By Deepak
-        arduino_ports = [
+        # AUTO-DETECT the uController! By Deepak
+        ucontroller_ports = [
                 p.device
                 for p in serial.tools.list_ports.comports()
-                if 'Arduino' in p.description]
-        if not arduino_ports:
-            raise IOError("No Arduino found")
-        if len(arduino_ports) > 1:
-            print('Multiple Arduinos found - using the first')
+                if MCU.DESC in p.description]
+        if not ucontroller_ports:
+            raise IOError("No {} found".format(MCU.NAME))
+        if len(ucontroller_ports) > 1:
+            print('Multiple uControllers found - using the first')
         else:
-            print('Using Arduino found at : {}'.format(arduino_ports[0]))
+            print('Using uController found at : {}'.format(ucontroller_ports[0]))
 
         # establish serial communication
-        self.serial = serial.Serial(arduino_ports[0],2000000)
+        self.serial = serial.Serial(ucontroller_ports[0],2000000)
         time.sleep(0.2)
         print('Serial Connection Open')
 
