@@ -10,7 +10,8 @@ from qtpy.QtWidgets import *
 from qtpy.QtGui import *
 
 # app specific libraries
-import control.gui as gui
+import control.gui_daheng_camera as gui
+# import control.gui_tis_camera as gui
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--simulation", help="Run the GUI with simulated image streams.", action = 'store_true')
@@ -20,8 +21,8 @@ if __name__ == "__main__":
 
     app = QApplication([])
     if args.simulation:
-        win = gui.GUI(is_simulation=True)
+    	win = gui.OctopiGUI(is_simulation=True)
     else:
-        win = gui.GUI()
+    	win = gui.OctopiGUI(is_simulation=False)
     win.show()
     app.exec_() #sys.exit(app.exec_())
