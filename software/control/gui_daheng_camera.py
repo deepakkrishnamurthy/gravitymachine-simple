@@ -15,6 +15,10 @@ import control.core as core
 import control.microcontroller as microcontroller
 from control._def import *
 
+# Data logging
+import control.core_data_logging as core_data_logging
+import control.widgets_data_logging as widgets_data_logging
+
 class OctopiGUI(QMainWindow):
 
 	# variables
@@ -30,12 +34,24 @@ class OctopiGUI(QMainWindow):
 		else:
 			self.camera = camera.Camera()
 			self.microcontroller = microcontroller.Microcontroller_Simulation()
+
+
 		
+		# Camera related control
 		self.configurationManager = core.ConfigurationManager()
 		self.streamHandler = core.StreamHandler()
 		self.liveController = core.LiveController(self.camera,self.microcontroller,self.configurationManager)
 		self.imageSaver = core.ImageSaver(Acquisition.IMAGE_FORMAT)
 		self.imageDisplay = core.ImageDisplay()
+
+		# Data-logging related control
+		self.waveforms = core_data_logging.Waveforms(self.microcontroller)
+
+		# load widgets
+		self.waveformDisplay = widgets_data_logging.WaveformDisplay()
+		self.controlPanel = widgets_data_logging.ControlPanel()
+
+
 
 		# open the camera
 		# camera start streaming
@@ -54,6 +70,11 @@ class OctopiGUI(QMainWindow):
 		layout.addWidget(self.cameraSettingWidget,0,0)
 		layout.addWidget(self.liveControlWidget,1,0)
 		layout.addWidget(self.recordingControlWidget,4,0)
+
+		layout.addWidget(self.waveformDisplay,5,0)
+		layout.addWidget(self.controlPanel,6,0)
+
+
 		
 		# transfer the layout to the central widget
 		self.centralWidget = QWidget()
@@ -72,10 +93,16 @@ class OctopiGUI(QMainWindow):
 		self.liveControlWidget.signal_newExposureTime.connect(self.cameraSettingWidget.set_exposure_time)
 		self.liveControlWidget.signal_newAnalogGain.connect(self.cameraSettingWidget.set_analog_gain)
 		self.liveControlWidget.update_camera_settings()
+
+		# data-logging connections
+		self.controlPanel.signal_logging_onoff.connect(self.waveforms.logging_onoff)
+		self.waveforms.signal_plots.connect(self.waveformDisplay.plot)
+		self.waveforms.signal_readings.connect(self.controlPanel.display_readings)
 		
 	def closeEvent(self, event):
 		event.accept()
 		# self.softwareTriggerGenerator.stop() @@@ => 
+		self.waveforms.close()
 		self.liveController.stop_live()
 		self.camera.close()
 		self.imageSaver.close()
