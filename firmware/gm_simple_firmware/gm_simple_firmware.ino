@@ -180,9 +180,9 @@ void timer_interruptHandler()
   timestamp = timestamp + 1;
 
 
-  // Theta_speed_measured = 1000*(Theta_pos - Theta_pos_prev)/TIMER_PERIOD_us;
+  Theta_speed_measured = 1000*(Theta_pos - Theta_pos_prev)/TIMER_PERIOD_us;
 
-  Theta_speed_measured = Theta_speed_measured + 20;
+  // Theta_speed_measured = Theta_speed_measured + 20;
 
 
   Theta_pos_prev = Theta_pos;
