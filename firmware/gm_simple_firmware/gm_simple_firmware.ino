@@ -74,9 +74,9 @@ static const int Theta_encoder_B = 15;
 
 volatile int32_t Theta_pos = 0;
 
-volatile uint32_t Theta_pos_prev=0, Theta_pos_curr = 0;
+volatile int32_t Theta_pos_prev=0, Theta_pos_curr = 0;
 
-volatile int32_t Theta_speed_measured = 0;
+unsigned long Theta_speed_measured = 0;
 
 bool Theta_use_encoder = true;
 /***************************************************************************************************/
@@ -159,8 +159,8 @@ void setup()
   pinMode(Theta_encoder_A, INPUT_PULLUP);
   pinMode(Theta_encoder_B, INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(Theta_encoder_A), ISR_Theta_encoder_A, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(Theta_encoder_B), ISR_Theta_encoder_B, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(Theta_encoder_A), ISR_Theta_encoder_A, FALLING);
+  attachInterrupt(digitalPinToInterrupt(Theta_encoder_B), ISR_Theta_encoder_B, FALLING);
   Theta_pos = 0;
 
   digitalWrite(Theta_en, LOW);
@@ -180,13 +180,9 @@ void timer_interruptHandler()
   timestamp = timestamp + 1;
 
 
-  Theta_speed_measured = 1000*(Theta_pos - Theta_pos_prev)/TIMER_PERIOD_us;
-
-  // Theta_speed_measured = Theta_speed_measured + 20;
-
+  Theta_speed_measured = 1000000*abs(Theta_pos - Theta_pos_prev)/TIMER_PERIOD_us;
 
   Theta_pos_prev = Theta_pos;
-
 
   // send data to host computer
   counter_log_data = counter_log_data + 1;
@@ -297,7 +293,7 @@ void loop()
                 blinkLED();
 
                 THETA_DIR = (2*buffer_rx[1] - 1);
-                THETA_SPEED = THETA_DIR*(uint16_t(buffer_rx[3])*256+uint16_t(buffer_rx[4]));
+                THETA_SPEED = THETA_DIR*(uint16_t(buffer_rx[2])*256+uint16_t(buffer_rx[3]));
 
                 if (abs(THETA_SPEED) > THETA_SPEED_MAX)
                 {
@@ -333,6 +329,8 @@ void loop()
           buffer_tx[buffer_tx_ptr++] = byte(timestamp %256);
 
           // field 2 Stepper speed (measured)
+          // Theta_speed_measured = abs(Theta_pos);
+
           buffer_tx[buffer_tx_ptr++] = byte(Theta_speed_measured >> 24);
           buffer_tx[buffer_tx_ptr++] = byte(Theta_speed_measured >> 16);
           buffer_tx[buffer_tx_ptr++] = byte(Theta_speed_measured >> 8);
@@ -346,7 +344,7 @@ void loop()
           {
               buffer_tx_ptr = 0;
               SerialUSB.write(buffer_tx, MSG_LENGTH);
-              blinkLED();
+              // blinkLED();
 
           }
 
