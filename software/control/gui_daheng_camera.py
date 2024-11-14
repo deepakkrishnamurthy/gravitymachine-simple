@@ -19,6 +19,9 @@ from control._def import *
 import control.core_data_logging as core_data_logging
 import control.widgets_data_logging as widgets_data_logging
 
+# Motion control
+import control.widgets_motion_control as widgets_motion_control
+
 class OctopiGUI(QMainWindow):
 
 	# variables
@@ -30,7 +33,9 @@ class OctopiGUI(QMainWindow):
 		# load objects
 		if is_simulation is True:
 			self.camera = camera.Camera_Simulation()
-			self.microcontroller = microcontroller.Microcontroller_Simulation()
+
+			# self.microcontroller = microcontroller.Microcontroller_Simulation()
+			self.microcontroller = microcontroller.Microcontroller()
 		else:
 			self.camera = camera.Camera()
 			self.microcontroller = microcontroller.Microcontroller_Simulation()
@@ -47,9 +52,15 @@ class OctopiGUI(QMainWindow):
 		# Data-logging related control
 		self.waveforms = core_data_logging.Waveforms(self.microcontroller)
 
+		# Stepper control
+		self.stepper_control = core.StepperController(self.microcontroller)
+
 		# load widgets
 		self.waveformDisplay = widgets_data_logging.WaveformDisplay()
 		self.controlPanel = widgets_data_logging.ControlPanel()
+
+		# Stepper control widget
+		self.stepperControlWidget = widgets_motion_control.StepperControlWidget(self.stepper_control)
 
 
 
@@ -71,8 +82,10 @@ class OctopiGUI(QMainWindow):
 		layout.addWidget(self.liveControlWidget,1,0)
 		layout.addWidget(self.recordingControlWidget,4,0)
 
-		layout.addWidget(self.waveformDisplay,5,0)
-		layout.addWidget(self.controlPanel,6,0)
+		layout.addWidget(self.waveformDisplay,0,1)
+		layout.addWidget(self.controlPanel,1,1)
+
+		layout.addWidget(self.stepperControlWidget, 2, 1)
 
 
 		
@@ -99,6 +112,9 @@ class OctopiGUI(QMainWindow):
 		self.waveforms.signal_plots.connect(self.waveformDisplay.plot)
 		self.waveforms.signal_readings.connect(self.controlPanel.display_readings)
 		
+		# motion control connections
+
+
 	def closeEvent(self, event):
 		event.accept()
 		# self.softwareTriggerGenerator.stop() @@@ => 

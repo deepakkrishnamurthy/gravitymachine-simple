@@ -67,6 +67,7 @@ class ControlPanel(QFrame):
 		self.btn_logging_onoff.clicked.connect(self.logging_onoff)
 
 	def logging_onoff(self,state):
+		print('Logging state :{}'.format(state))
 		self.signal_logging_onoff.emit(state,self.lineEdit_experimentID.text())
 
 	def display_readings(self,readings):
@@ -176,8 +177,12 @@ class WaveformDisplay(QFrame):
 		self.setLayout(layout)
 
 	def plot(self,time,data):
-		for i in range(NUMBER_OF_CHANNELS_DISPLAY):
-			self.plotWidget[str(i)].plot(time,data[i,:])
+		
+		if data.ndim==1:
+			self.plotWidget[str(0)].plot(time,data)
+		elif data.ndim > 1:
+			for i in range(NUMBER_OF_CHANNELS_DISPLAY):
+				self.plotWidget[str(i)].plot(time,data[i,:])
 
 class PlotWidget(pg.GraphicsLayoutWidget):
 	def __init__(self, window_title='',parent=None):

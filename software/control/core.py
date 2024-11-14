@@ -1019,3 +1019,69 @@ class ConfigurationManager(QObject):
         mode_to_update = list[0]
         mode_to_update.set(attribute_name,str(new_value))
         self.save_configurations()
+
+
+class StepperController(QObject):
+
+    xPos = Signal(float)
+    yPos = Signal(float)
+    zPos = Signal(float)
+
+    speed = Signal(float)
+    microstepping = Signal(int)
+
+
+    def __init__(self,microcontroller):
+        QObject.__init__(self)
+        self.microcontroller = microcontroller
+        
+        self.measured_speed = 0
+
+        # self.timer_read_pos = QTimer()
+        # self.timer_read_pos.setInterval(PosUpdate.INTERVAL_MS)
+        # self.timer_read_pos.timeout.connect(self.update_speed)
+        # self.timer_read_pos.start()
+
+    def set_stepper_speed(self, speed):
+
+        self.microcontroller.set_stepper_speed(speed)
+
+    def set_microsteps(self, microsteps):
+
+        self.microcontroller.set_microsteps(microsteps)
+
+
+    # def move_x(self,delta):
+    #     self.microcontroller.move_x(delta)
+
+    # def move_y(self,delta):
+    #     self.microcontroller.move_y(delta)
+
+    # def move_z(self,delta):
+    #     self.microcontroller.move_z(delta)
+
+    # def move_x_usteps(self,usteps):
+    #     self.microcontroller.move_x_usteps(usteps)
+
+    # def move_y_usteps(self,usteps):
+    #     self.microcontroller.move_y_usteps(usteps)
+
+    # def move_z_usteps(self,usteps):
+    #     self.microcontroller.move_z_usteps(usteps)
+
+
+    def update_speed(self):
+
+        data = self.microcontroller.read_received_packet_nowait()
+        if data is None:
+            return
+
+        self.measured_speed = utils.unsigned_to_signed(data[0:3],MicrocontrollerDef.N_BYTES_POS) # @@@TODO@@@: move to microcontroller?
+        
+        self.speed.emit(self.measured_speed)
+
+    def home(self):
+        #self.microcontroller.move_x(-self.x_pos)
+        #self.microcontroller.move_y(-self.y_pos)
+        pass # disable software homing
+
